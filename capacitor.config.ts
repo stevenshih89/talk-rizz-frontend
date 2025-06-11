@@ -22,7 +22,7 @@ const config: CapacitorConfig = {
     },
   },
   ios: {
-    scheme: "Catnnect Connect",
+    scheme: "App",
   },
   android: {
     allowMixedContent: true,
