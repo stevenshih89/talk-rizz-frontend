@@ -4,27 +4,27 @@
 <dict>
 	<key>API_KEY</key>
 	<string>AIzaSyCxym4z0MYEo2H0s8t6HWoBN34VSuvQyuc</string>
+	<key>BUNDLE_ID</key>
+	<string>com.catnnect.ios</string>
 	<key>GCM_SENDER_ID</key>
 	<string>1184643591</string>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1184643591:ios:762d554e38d62e99fc08a2</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
-	<key>BUNDLE_ID</key>
-	<string>myai.chatbot.app</string>
 	<key>PROJECT_ID</key>
 	<string>ai-chat-app-a5523</string>
 	<key>STORAGE_BUCKET</key>
 	<string>ai-chat-app-a5523.appspot.com</string>
-	<key>IS_ADS_ENABLED</key>
-	<false></false>
-	<key>IS_ANALYTICS_ENABLED</key>
-	<false></false>
-	<key>IS_APPINVITE_ENABLED</key>
-	<true></true>
-	<key>IS_GCM_ENABLED</key>
-	<true></true>
-	<key>IS_SIGNIN_ENABLED</key>
-	<true></true>
-	<key>GOOGLE_APP_ID</key>
-	<string>1:1184643591:ios:762d554e38d62e99fc08a2</string>
 </dict>
 </plist>

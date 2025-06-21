@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "io.catnnect.connect",
-  // appId: "com.catnnect.ios",
+  // appId: "io.catnnect.connect",
+  appId: "com.catnnect.ios",
   appName: "Catnnect Connect",
   webDir: "dist",
   server: {

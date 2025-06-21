@@ -126,8 +126,9 @@ const SocialAuth: React.FC<SocialAuthProps> = ({ onError, onSuccess }) => {
       const platforms = getPlatforms();
       const isAndroid = platforms.includes("android");
       const isIOS = platforms.includes("ios");
-      const isMobile = isAndroid || isIOS || Capacitor.isNativePlatform();
+      // const isMobile = isAndroid || isIOS || Capacitor.isNativePlatform();
 
+      const isMobile = false;
       // Determine redirect URL based on platform
       let redirectTo: string;
 
