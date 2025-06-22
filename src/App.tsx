@@ -32,7 +32,9 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Initialize push notifications
-    PushNotificationService.init();
+    PushNotificationService.init().catch(err => {
+      console.error('Error initializing push notifications:', err);
+    });
     
     const adMobService = AdMobService.getInstance();
 

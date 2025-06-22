@@ -1,5 +1,5 @@
 {
-  "appId": "com.catnnect.ios",
+  "appId": "io.catnnect.connect",
   "appName": "Catnnect Connect",
   "webDir": "dist",
   "server": {
@@ -16,12 +16,19 @@
       "interstitialAdId": "ca-app-pub-7556755881195797/2273722777",
       "rewardedAdId": "ca-app-pub-7556755881195797/2273722777",
       "isTesting": true
+    },
+    "FirebaseMessaging": {
+      "presentationOptions": ["badge", "sound", "alert"]
     }
   },
   "ios": {
-    "scheme": "io.catnnect.connect"
+    "scheme": "App"
   },
   "android": {
-    "allowMixedContent": true
+    "allowMixedContent": true,
+    "buildOptions": {
+      "keystorePath": null,
+      "keystoreAlias": null
+    }
   }
 }
