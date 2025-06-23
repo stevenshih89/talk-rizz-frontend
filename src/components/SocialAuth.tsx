@@ -43,44 +43,46 @@ const SocialAuth: React.FC<SocialAuthProps> = ({ onError, onSuccess }) => {
 
   const handleAppleSignIn = async () => {
     setIsAppleLoading(true);
+    console.log("Starting Apple Sign In process...");
 
     if (Capacitor.isNativePlatform()) {
+      console.log("Using native Apple Sign In");
       let options: SignInWithAppleOptions = {
         clientId: "com.catnnect.ios",
-        redirectURI: "io.catnnect.connect",
-        // "https://sqttehzyiacxmmiqsovw.supabase.co/auth/v1/callback",
+        redirectURI: "App://oauth",
         scopes: "email name",
       };
 
-      let appleResponse: SignInWithAppleResponse;
-
       try {
-        appleResponse = await SignInWithApple.authorize(options);
-      } catch (err) {
-        console.log("Apple catch error: ", err);
-        setIsAppleLoading(false);
-        onError(
-          err instanceof Error ? err.message : "Apple authentication failed"
-        );
-        return;
-      }
+        console.log("Calling SignInWithApple.authorize with options:", options);
+        const appleResponse: SignInWithAppleResponse =
+          await SignInWithApple.authorize(options);
+        console.log("Apple response received:", appleResponse);
 
-      try {
+        if (!appleResponse.response || !appleResponse.response.identityToken) {
+          console.error("No identity token received from Apple");
+          setIsAppleLoading(false);
+          onError("No identity token received from Apple");
+          return;
+        }
+
+        console.log("Signing in to Supabase with Apple token");
         const { data, error } = await supabase.auth.signInWithIdToken({
           provider: "apple",
           token: appleResponse.response.identityToken,
         });
 
         if (error) {
+          console.error("Supabase Apple login error:", error);
           setIsAppleLoading(false);
-          console.log("Apple login error: ", error);
           onError(error.message);
           return;
         }
 
+        console.log("Supabase auth successful:", data);
         if (!data.session?.user?.email) {
+          console.error("No email received from Apple Sign In");
           setIsAppleLoading(false);
-          console.log("Apple login error: no email: ", data);
           onError("No email received from Apple Sign In");
           return;
         }
@@ -98,14 +100,15 @@ const SocialAuth: React.FC<SocialAuthProps> = ({ onError, onSuccess }) => {
 
         setIsAppleLoading(false);
       } catch (err) {
-        setIsAppleLoading(false);
         console.error("Apple Sign In error:", err);
+        setIsAppleLoading(false);
         onError(
           err instanceof Error ? err.message : "Apple authentication failed"
         );
       }
     } else {
       // Fallback to web OAuth for web platform
+      console.log("Using web OAuth for Apple Sign In");
       try {
         await handleSocialAuth("apple");
       } catch (err) {
