@@ -10,10 +10,64 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
-        // Configure Firebase using our helper
-        FirebaseConfiguration.configure()
+        // Configure Firebase with more robust error handling
+        configureFirebase()
         
         return true
+    }
+    
+    private func configureFirebase() {
+        // Try different locations for the GoogleService-Info.plist file
+        let possiblePlistPaths = [
+            Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+            Bundle.main.bundlePath + "/GoogleService-Info.plist",
+            Bundle.main.resourcePath! + "/GoogleService-Info.plist",
+            FileManager.default.currentDirectoryPath + "/GoogleService-Info.plist"
+        ]
+        
+        // Print all paths for debugging
+        print("Searching for GoogleService-Info.plist in the following locations:")
+        for (index, path) in possiblePlistPaths.enumerated() {
+            if let path = path {
+                print("\(index): \(path) - Exists: \(FileManager.default.fileExists(atPath: path))")
+            } else {
+                print("\(index): nil path")
+            }
+        }
+        
+        // Try to find a valid plist file
+        for path in possiblePlistPaths {
+            if let path = path, FileManager.default.fileExists(atPath: path) {
+                print("Found GoogleService-Info.plist at: \(path)")
+                do {
+                    // Read the file content for debugging
+                    let data = try Data(contentsOf: URL(fileURLWithPath: path))
+                    print("Successfully read \(data.count) bytes from plist file")
+                    
+                    // Configure Firebase with this file
+                    if let options = FirebaseOptions(contentsOfFile: path) {
+                        FirebaseApp.configure(options: options)
+                        print("Firebase configured successfully with options from plist file")
+                        return
+                    } else {
+                        print("Error: Failed to create Firebase options from file at \(path)")
+                    }
+                } catch {
+                    print("Error reading plist file: \(error)")
+                }
+            }
+        }
+        
+        // If we get here, we couldn't find a valid plist file
+        print("WARNING: Could not find a valid GoogleService-Info.plist file. Trying default configuration.")
+        
+        // Try default configuration as a last resort
+        do {
+            FirebaseApp.configure()
+            print("Firebase configured with default configuration")
+        } catch {
+            print("Failed to configure Firebase with default configuration: \(error)")
+        }
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
@@ -62,11 +116,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
 
-        let statusBarRect = application.statusBarFrame
-        guard let touchPoint = event?.allTouches?.first?.location(in: self.window) else { return }
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let statusBarManager = windowScene.statusBarManager {
+            let statusBarFrame = statusBarManager.statusBarFrame
+            guard let touchPoint = event?.allTouches?.first?.location(in: self.window) else { return }
 
-        if statusBarRect.contains(touchPoint) {
-            NotificationCenter.default.post(name: .capacitorStatusBarTapped, object: nil)
+            if statusBarFrame.contains(touchPoint) {
+                NotificationCenter.default.post(name: .capacitorStatusBarTapped, object: nil)
+            }
         }
     }
 }
