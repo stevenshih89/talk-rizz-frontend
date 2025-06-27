@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { IonApp, setupIonicReact } from "@ionic/react";
 import { AdMobService } from "./utils/admob";
 import PushNotificationService from "./PushNotificationService";
+import { Capacitor } from '@capacitor/core';
+import { initializeApp } from 'firebase/app';
 
 // Import Ionic CSS
 import "@ionic/react/css/core.css";
@@ -25,6 +27,21 @@ import { DeepLinkHandler } from "./components/DeepLinkHandler";
 
 setupIonicReact();
 
+// Firebase configuration from google-services.json
+const firebaseConfig = {
+  apiKey: "AIzaSyBznzFT3gMDdBT10sUTsPi7gjSk6SInUBQ",
+  authDomain: "catnnect-ab73f.firebaseapp.com",
+  projectId: "catnnect-ab73f",
+  storageBucket: "catnnect-ab73f.firebasestorage.app",
+  messagingSenderId: "871084142539",
+  appId: "1:871084142539:android:daae6bb42cb5243f1cd04e"
+};
+
+// Initialize Firebase if on Android
+if (Capacitor.getPlatform() === 'android') {
+  initializeApp(firebaseConfig);
+}
+
 const App: React.FC = () => {
   const [adInitialized, setAdInitialized] = useState(false);
   const [adError, setAdError] = useState<string | null>(null);
@@ -32,7 +49,9 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Initialize push notifications
-    PushNotificationService.init();
+    PushNotificationService.init().catch(err => {
+      console.error('Error initializing push notifications:', err);
+    });
     
     const adMobService = AdMobService.getInstance();
 

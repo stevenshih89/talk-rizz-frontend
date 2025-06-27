@@ -46,9 +46,8 @@ const SocialAuth: React.FC<SocialAuthProps> = ({ onError, onSuccess }) => {
 
     if (Capacitor.isNativePlatform()) {
       let options: SignInWithAppleOptions = {
-        clientId: "com.catnnect.ios",
-        redirectURI: "io.catnnect.connect",
-        // "https://sqttehzyiacxmmiqsovw.supabase.co/auth/v1/callback",
+        clientId: "io.catnnect.connect",
+        redirectURI: "io.catnnect.connect://oauth",
         scopes: "email name",
       };
 
@@ -127,25 +126,19 @@ const SocialAuth: React.FC<SocialAuthProps> = ({ onError, onSuccess }) => {
       const platforms = getPlatforms();
       const isAndroid = platforms.includes("android");
       const isIOS = platforms.includes("ios");
-      const isMobile = isAndroid || isIOS;
-
-      // const isMobile = true;
+      const isMobile = isAndroid || isIOS || Capacitor.isNativePlatform();
 
       // Determine redirect URL based on platform
       let redirectTo: string;
 
       if (isMobile) {
-        if (isIOS) {
-          redirectTo = "App://oauth";
-        } else {
-          redirectTo = "io.catnnect.connect://oauth";
-        }
+        redirectTo = "io.catnnect.connect://oauth";
+        console.log(`Using mobile redirect URL for ${provider}:`, redirectTo);
       } else {
         // Web fallback
         redirectTo = `${window.location.origin}/auth/callback`;
+        console.log(`Using web redirect URL for ${provider}:`, redirectTo);
       }
-
-      console.log("Using redirect URL:", redirectTo);
 
       // Configure auth options based on provider
       const authOptions: any = {
@@ -161,20 +154,24 @@ const SocialAuth: React.FC<SocialAuthProps> = ({ onError, onSuccess }) => {
         };
       }
 
+      console.log(`Starting ${provider} OAuth flow with options:`, authOptions);
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: authOptions,
       });
 
       if (error) {
+        console.error(`${provider} OAuth error:`, error);
         throw error;
       }
 
-      console.log("Auth data:", data);
+      console.log(`${provider} Auth data:`, data);
 
       // For mobile platforms, we need to handle the redirect manually
       if (isMobile && data?.url) {
         // Open the URL in the device's browser
+        console.log(`Redirecting to OAuth URL: ${data.url}`);
         window.location.href = data.url;
       }
 

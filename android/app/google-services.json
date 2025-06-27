@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "871084142539",
+    "project_id": "catnnect-ab73f",
+    "storage_bucket": "catnnect-ab73f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:871084142539:android:daae6bb42cb5243f1cd04e",
+        "android_client_info": {
+          "package_name": "io.catnnect.connect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBznzFT3gMDdBT10sUTsPi7gjSk6SInUBQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
