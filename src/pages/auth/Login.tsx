@@ -18,20 +18,28 @@ import {
   IonCardContent,
   IonIcon,
   IonRouterLink,
+  useIonRouter,
 } from "@ionic/react";
-import { logInOutline, personOutline, lockClosedOutline } from "ionicons/icons";
+import {
+  logInOutline,
+  personOutline,
+  lockClosedOutline,
+  logoApple,
+} from "ionicons/icons";
 import { useHistory } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import SocialAuth from "../../components/SocialAuth";
+import { AuthService } from "../../services/authService";
 import "./Login.css";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
   const [showLoading, setShowLoading] = useState(false);
   const history = useHistory();
-  const { signIn } = useAuth();
+  const { signIn, setSession, setProfile } = useAuth();
+  const router = useIonRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,54 +85,19 @@ const Login: React.FC = () => {
 
               <IonCard>
                 <IonCardContent>
-                  {/* <form onSubmit={handleLogin}>
-                    {error && (
-                      <IonText color="danger">
-                        <p className="ion-text-center">{error}</p>
-                      </IonText>
-                    )}
+                  <SocialAuth
+                    onError={setError}
+                    onSuccess={(data) => {
+                      console.log("Navigating to Profile");
+                      router.push("/app/profile", "root");
+                    }}
+                  />
 
-                    <IonItem>
-                      <IonIcon icon={personOutline} slot="start" />
-                      <IonLabel position="floating">Email</IonLabel>
-                      <IonInput
-                        type="email"
-                        value={email}
-                        onIonChange={(e) => setEmail(e.detail.value!)}
-                        required
-                      />
-                    </IonItem>
-
-                    <IonItem className="ion-margin-bottom">
-                      <IonIcon icon={lockClosedOutline} slot="start" />
-                      <IonLabel position="floating">Password</IonLabel>
-                      <IonInput
-                        type="password"
-                        value={password}
-                        onIonChange={(e) => setPassword(e.detail.value!)}
-                        required
-                      />
-                    </IonItem>
-
-                    <IonButton
-                      expand="block"
-                      type="submit"
-                      className="ion-margin-top"
-                    >
-                      <IonIcon icon={logInOutline} slot="start" />
-                      Login
-                    </IonButton>
-
-                    <div className="ion-text-center ion-margin-top">
-                      <IonRouterLink routerLink="/forgot-password">
-                        Forgot Password?
-                      </IonRouterLink>
+                  {error && (
+                    <div className="error-message ion-text-center ion-margin-top">
+                      {error}
                     </div>
-                  </form>
-                  <div className="social-auth-divider">
-                    <span>or</span>
-                  </div> */}
-                  <SocialAuth onError={setError} />
+                  )}
                 </IonCardContent>
               </IonCard>
             </IonCol>

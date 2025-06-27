@@ -1,5 +1,6 @@
 import UIKit
 import Capacitor
+import FirebaseCore
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -8,6 +9,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        // Configure Firebase using our helper
+        FirebaseConfiguration.configure()
+        
         return true
     }
 
@@ -52,5 +57,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
+    }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+
+        let statusBarRect = application.statusBarFrame
+        guard let touchPoint = event?.allTouches?.first?.location(in: self.window) else { return }
+
+        if statusBarRect.contains(touchPoint) {
+            NotificationCenter.default.post(name: .capacitorStatusBarTapped, object: nil)
+        }
     }
 }

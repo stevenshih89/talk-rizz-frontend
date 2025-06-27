@@ -1,4 +1,5 @@
 import { io, Socket } from "socket.io-client";
+import PushNotificationService from "../PushNotificationService";
 
 export interface ChatMessage {
   _id: string;
@@ -30,6 +31,7 @@ export interface ChatRoom {
 class WebSocketService {
   socket: Socket | null = null;
   private static instance: WebSocketService;
+  private currentRoomId: string | null = null;
 
   private constructor() {}
 
@@ -101,6 +103,8 @@ class WebSocketService {
     if (!this.socket) {
       throw new Error("WebSocket not connected");
     }
+    this.currentRoomId = roomId;
+    PushNotificationService.setCurrentChatRoomId(roomId);
     this.socket.emit("join_room", { roomId });
   }
 
@@ -108,6 +112,8 @@ class WebSocketService {
     if (!this.socket) {
       throw new Error("WebSocket not connected");
     }
+    this.currentRoomId = null;
+    PushNotificationService.setCurrentChatRoomId(null);
     this.socket.emit("leave_room", { roomId });
   }
 
@@ -115,7 +121,25 @@ class WebSocketService {
     if (!this.socket) {
       throw new Error("WebSocket not connected");
     }
-    this.socket.on("new_message", callback);
+    
+    this.socket.on("new_message", (message) => {
+      // Handle notification if message is from a different room than current
+      if (message._doc.roomId !== this.currentRoomId) {
+        const sender = message.sender?.name || "Someone";
+        const title = `New message from ${sender}`;
+        const body = message._doc.content;
+        
+        // Show a notification with the message content
+        PushNotificationService.showNotification(
+          title,
+          body,
+          { roomId: message._doc.roomId }
+        );
+      }
+      
+      // Call the original callback
+      callback(message);
+    });
   }
 
   onTyping(callback: (data: { userId: string; roomId: string }) => void) {

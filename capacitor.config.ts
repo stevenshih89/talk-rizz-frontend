@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  // appId: "io.catnnect.connect",
-  appId: "com.catnnect.connect",
+  appId: "io.catnnect.connect",
+  // appId: "com.catnnect.ios",
   appName: "Catnnect Connect",
   webDir: "dist",
   server: {
@@ -20,12 +20,24 @@ const config: CapacitorConfig = {
       rewardedAdId: "ca-app-pub-7556755881195797/2273722777",
       isTesting: true,
     },
+    SignInWithApple: {
+      clientId: "com.catnnect.ios",
+      redirectURI: "App://oauth",
+      scopes: "email name",
+    },
+    FirebaseMessaging: {
+      presentationOptions: ["badge", "sound", "alert"],
+    },
   },
   ios: {
-    scheme: "Catnnect Connect",
+    scheme: "App",
   },
   android: {
     allowMixedContent: true,
+    buildOptions: {
+      keystorePath: undefined,
+      keystoreAlias: undefined,
+    },
   },
 };
 

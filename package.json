@@ -10,13 +10,16 @@
     "test.e2e": "cypress run",
     "test.unit": "vitest",
     "lint": "eslint",
-    "android:dev": "ionic cap run android -l --external --public-host=10.0.2.2",
-    "ios:dev": "LOCAL_DEV=1 ionic capacitor run ios -l --external"
+    "android:dev": "ionic cap run android -l --external",
+    "ios:dev": "LOCAL_DEV=1 ionic capacitor run ios -l --external",
+    "sync:android": "npx cap sync android",
+    "build:android": "npm run build && npm run sync:android"
   },
   "dependencies": {
     "@capacitor-community/admob": "^7.0.3",
     "@capacitor-community/apple-sign-in": "^6.0.0",
     "@capacitor-community/in-app-review": "^6.0.0",
+    "@capacitor-firebase/messaging": "^5.1.0",
     "@capacitor/android": "6.1.1",
     "@capacitor/app": "6.0.0",
     "@capacitor/camera": "^6.0.2",
@@ -26,6 +29,7 @@
     "@capacitor/haptics": "^6.0.0",
     "@capacitor/ios": "6.1.1",
     "@capacitor/keyboard": "6.0.1",
+    "@capacitor/local-notifications": "^7.0.1",
     "@capacitor/push-notifications": "^6.0.2",
     "@capacitor/screen-reader": "^6.0.2",
     "@capacitor/share": "^6.0.2",

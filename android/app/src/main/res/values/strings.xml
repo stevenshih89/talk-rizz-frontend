@@ -4,4 +4,5 @@
     <string name="title_activity_main">Catnnect Connect</string>
     <string name="package_name">io.catnnect.connect</string>
     <string name="custom_url_scheme">io.catnnect.connect</string>
+    <string name="default_notification_channel_id">catnnect_notifications</string>
 </resources>

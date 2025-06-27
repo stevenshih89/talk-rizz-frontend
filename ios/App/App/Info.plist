@@ -29,7 +29,7 @@
 			<string>myai.chatbot.app</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>chataiaskgptchatbotassist</string>
+				<string>com.catnnect.ios</string>
 			</array>
 		</dict>
 		<dict>
@@ -39,7 +39,7 @@
 			<string>io.catnnect.connect</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>io.catnnect.connect</string>
+				<string>com.catnnect.ios</string>
 			</array>
 		</dict>
 	</array>
