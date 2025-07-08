@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { IonButton, IonIcon } from "@ionic/react";
+import { IonButton, IonIcon, useIonRouter } from "@ionic/react";
 import { logoGoogle, logoApple } from "ionicons/icons";
 import { supabase } from "../config/supabase";
 import { Provider } from "@supabase/supabase-js";
@@ -11,6 +11,7 @@ import {
   SignInWithAppleResponse,
 } from "@capacitor-community/apple-sign-in";
 import "./SocialAuth.css";
+import { useAuth } from "../contexts/AuthContext";
 
 interface SocialAuthProps {
   onError: (error: string) => void;
@@ -20,6 +21,8 @@ interface SocialAuthProps {
 const SocialAuth: React.FC<SocialAuthProps> = ({ onError, onSuccess }) => {
   const [isAppleLoading, setIsAppleLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const router = useIonRouter();
+  const { handleAuthCallback } = useAuth();
 
   const saveSessionData = (session: any) => {
     // Store session data in localStorage or your preferred storage
@@ -32,13 +35,23 @@ const SocialAuth: React.FC<SocialAuthProps> = ({ onError, onSuccess }) => {
     localStorage.setItem("user.id", userId);
   };
 
-  const handleSuccessfulSignIn = (data: any) => {
+  const handleSuccessfulSignIn = async (data: any) => {
     console.log("Successful sign in:", data);
-    if (onSuccess) {
-      onSuccess(data);
+
+    try {
+      // Call handleAuthCallback to set up user profile in MongoDB
+      await handleAuthCallback();
+
+      if (onSuccess) {
+        onSuccess(data);
+      }
+
+      // Navigate to profile page after successful sign-in
+      router.push("/app/profile", "forward", "replace");
+    } catch (error) {
+      console.error("Error handling successful sign in:", error);
+      onError("Error setting up user profile after authentication");
     }
-    // window.location.href = "/";
-    // Additional success handling logic here
   };
 
   const handleAppleSignIn = async () => {
@@ -46,15 +59,17 @@ const SocialAuth: React.FC<SocialAuthProps> = ({ onError, onSuccess }) => {
 
     if (Capacitor.isNativePlatform()) {
       let options: SignInWithAppleOptions = {
-        clientId: "io.catnnect.connect",
-        redirectURI: "io.catnnect.connect://oauth",
+        clientId: "com.catnnect.ios",
+        redirectURI: "App://oauth",
         scopes: "email name",
       };
 
       let appleResponse: SignInWithAppleResponse;
 
       try {
+        console.log("Requesting Apple authorization...");
         appleResponse = await SignInWithApple.authorize(options);
+        console.log("Apple authorization response:", appleResponse);
       } catch (err) {
         console.log("Apple catch error: ", err);
         setIsAppleLoading(false);
@@ -65,6 +80,7 @@ const SocialAuth: React.FC<SocialAuthProps> = ({ onError, onSuccess }) => {
       }
 
       try {
+        console.log("Signing in with Apple ID token...");
         const { data, error } = await supabase.auth.signInWithIdToken({
           provider: "apple",
           token: appleResponse.response.identityToken,
@@ -76,6 +92,8 @@ const SocialAuth: React.FC<SocialAuthProps> = ({ onError, onSuccess }) => {
           onError(error.message);
           return;
         }
+
+        console.log("Supabase auth response:", data);
 
         if (!data.session?.user?.email) {
           setIsAppleLoading(false);
@@ -92,7 +110,7 @@ const SocialAuth: React.FC<SocialAuthProps> = ({ onError, onSuccess }) => {
         saveUserData(userEmail, userId);
 
         if (data?.session?.access_token && data?.user?.email) {
-          handleSuccessfulSignIn(data);
+          await handleSuccessfulSignIn(data);
         }
 
         setIsAppleLoading(false);
@@ -126,24 +144,28 @@ const SocialAuth: React.FC<SocialAuthProps> = ({ onError, onSuccess }) => {
       const platforms = getPlatforms();
       const isAndroid = platforms.includes("android");
       const isIOS = platforms.includes("ios");
-      const isMobile = isAndroid || isIOS || Capacitor.isNativePlatform();
+      const isMobile = isAndroid || isIOS;
 
       // Determine redirect URL based on platform
       let redirectTo: string;
 
       if (isMobile) {
-        redirectTo = "io.catnnect.connect://oauth";
-        console.log(`Using mobile redirect URL for ${provider}:`, redirectTo);
+        if (isAndroid) {
+          redirectTo = "io.catnnect.connect://oauth";
+        } else {
+          // Use the correct iOS app scheme
+          redirectTo = "com.catnnect.ios://oauth";
+        }
       } else {
         // Web fallback
         redirectTo = `${window.location.origin}/auth/callback`;
-        console.log(`Using web redirect URL for ${provider}:`, redirectTo);
       }
+
+      console.log("Using redirect URL:", redirectTo);
 
       // Configure auth options based on provider
       const authOptions: any = {
         redirectTo,
-        skipBrowserRedirect: isMobile, // Skip browser redirect on mobile
       };
 
       // Provider-specific configurations
@@ -154,26 +176,16 @@ const SocialAuth: React.FC<SocialAuthProps> = ({ onError, onSuccess }) => {
         };
       }
 
-      console.log(`Starting ${provider} OAuth flow with options:`, authOptions);
-
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: authOptions,
       });
 
       if (error) {
-        console.error(`${provider} OAuth error:`, error);
         throw error;
       }
 
-      console.log(`${provider} Auth data:`, data);
-
-      // For mobile platforms, we need to handle the redirect manually
-      if (isMobile && data?.url) {
-        // Open the URL in the device's browser
-        console.log(`Redirecting to OAuth URL: ${data.url}`);
-        window.location.href = data.url;
-      }
+      console.log("Auth data:", data);
 
       if (provider === "google") {
         setIsGoogleLoading(false);

@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { IonApp, setupIonicReact } from "@ionic/react";
+import { IonApp, IonRouterOutlet, setupIonicReact } from "@ionic/react";
 import { AdMobService } from "./utils/admob";
 import PushNotificationService from "./PushNotificationService";
+import { Capacitor } from "@capacitor/core";
+import { StatusBar, Style } from "@capacitor/status-bar";
+import useStatusBar from "./hooks/useStatusBar";
+import {
+  AdMob,
+  BannerAdPosition,
+  BannerAdSize,
+} from "@capacitor-community/admob";
 
 // Import Ionic CSS
 import "@ionic/react/css/core.css";
@@ -23,6 +31,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { IonReactRouter } from "@ionic/react-router";
 import { DeepLinkHandler } from "./components/DeepLinkHandler";
 
+// Simple setup
 setupIonicReact();
 
 const App: React.FC = () => {
@@ -30,12 +39,36 @@ const App: React.FC = () => {
   const [adError, setAdError] = useState<string | null>(null);
   const [hideValue, setHideValue] = useState(false);
 
+  // Use the status bar hook to ensure fullscreen display
+  useStatusBar();
+
   useEffect(() => {
+    // Configure status bar
+    const setupStatusBar = async () => {
+      if (
+        Capacitor.isPluginAvailable("StatusBar") &&
+        Capacitor.isNativePlatform()
+      ) {
+        try {
+          // Set status bar style first
+          await StatusBar.setStyle({ style: Style.Dark });
+
+          // Hide status bar
+          await StatusBar.hide();
+        } catch (err) {
+          console.error("Error configuring status bar:", err);
+        }
+      }
+    };
+
     // Initialize push notifications
-    PushNotificationService.init().catch(err => {
-      console.error('Error initializing push notifications:', err);
-    });
-    
+    PushNotificationService.init();
+
+    // Setup status bar with a delay to ensure app is fully initialized
+    setTimeout(() => {
+      setupStatusBar();
+    }, 300);
+
     const adMobService = AdMobService.getInstance();
 
     const handleAdVisibility = (isVisible: boolean) => {
@@ -53,7 +86,11 @@ const App: React.FC = () => {
         setTimeout(async () => {
           try {
             console.log("Attempting to show banner ad...");
-            await adMobService.showBannerAd();
+            await AdMob.showBanner({
+              adId: "ca-app-pub-7556755881195797/2273722777",
+              adSize: BannerAdSize.ADAPTIVE_BANNER,
+              position: BannerAdPosition.TOP_CENTER,
+            });
 
             // Check status after 3 seconds
             setTimeout(() => {
@@ -88,29 +125,25 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div style={{ display: hideValue ? "none" : "block", height: "50px" }}>
-        {/* Your content to hide when ad is visible */}
-        <h1>Content to hide when ad is visible</h1>
-      </div>
-
+      <div
+        style={{
+          display: hideValue ? "none" : "block",
+          height: "50px",
+          backgroundColor: "#121212",
+        }}
+      ></div>
       <IonApp
         className="background"
+        // style={{ height: "100vh"}}
         style={{ height: "calc(100vh - 50px)", marginTop: "50px" }}
       >
         <IonReactRouter>
           <AuthProvider>
             <DeepLinkHandler />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                height: "100vh",
-                position: "relative",
-              }}
-            >
-              <div style={{ flex: 1, overflow: "auto" }}>
+            <div style={{ marginTop: "50px" }}>
+              <IonRouterOutlet>
                 <RootScreen />
-              </div>
+              </IonRouterOutlet>
             </div>
           </AuthProvider>
         </IonReactRouter>

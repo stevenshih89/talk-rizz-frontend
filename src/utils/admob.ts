@@ -41,7 +41,18 @@ export class AdMobService {
 
     try {
       console.log("Starting AdMob initialization...");
-      await AdMob.initialize();
+      await AdMob.initialize({
+        initializeForTesting: true,
+        testingDevices: ["EMULATOR"],
+      });
+
+      // Request tracking authorization separately (for iOS)
+      try {
+        await AdMob.requestTrackingAuthorization();
+      } catch (trackingError) {
+        console.warn("Tracking authorization request failed:", trackingError);
+      }
+
       this.initialized = true;
       console.log("AdMob initialized successfully");
     } catch (error) {
@@ -67,7 +78,7 @@ export class AdMobService {
         position: BannerAdPosition.TOP_CENTER,
         margin: 0,
         isTesting: true,
-        adSize: BannerAdSize.BANNER,
+        adSize: BannerAdSize.ADAPTIVE_BANNER,
       };
 
       console.log("Showing banner ad with options:", JSON.stringify(options));

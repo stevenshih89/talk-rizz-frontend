@@ -192,28 +192,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       if (session?.user) {
-        console.log("User metadata:", session.user.user_metadata);
-        console.log("User:", session.user);
-        
-        const name = session.user.user_metadata?.full_name || 
-                    session.user.user_metadata?.name ||
-                    session.user.email?.split("@")[0] || 
-                    "User";
-                    
-        // Set session first to ensure we have authentication for API calls
+        const name = session.user.user_metadata.full_name || null;
+        await handleMongoDBUser(name);
+        await handleMongoDBConnect();
+
         setSession({
           access_token: session.access_token,
           user: {
             id: session.user.id,
             email: session.user.email || "",
-            name: name,
+            name:
+              session.user.user_metadata.full_name ||
+              session.user.email?.split("@")[0],
             avatar: session.user.user_metadata.avatar_url,
           },
         });
-        
-        // Then get or create MongoDB user profile
-        await handleMongoDBUser(name);
-        await handleMongoDBConnect();
       }
     } catch (error) {
       console.error("Error in auth callback:", error);
@@ -223,38 +216,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleMongoDBUser = async (name: string | null) => {
     try {
-      console.log("Fetching user profile from MongoDB...");
       const response = await profileService.getUserProfile();
 
       console.log("getUserProfile response", response);
 
       if (response.status === 200) {
-        console.log("Profile found, setting profile state");
         setProfile(response.data);
-        return;
-      } 
-      
-      console.error("Failed to fetch profile with status:", response.status);
+      } else {
+        console.error("Failed to fetch TalkJS token");
+      }
     } catch (error: any) {
-      console.error("Error fetching profile:", error?.response?.status, error?.response?.data);
-      
-      if (error?.response?.status === 404 || error?.response?.data?.error === "Profile not found") {
-        console.log("Profile not found, creating new profile with name:", name);
-        try {
-          const createResponse = await profileService.createProfile({
-            name: name || "User",
-          });
-          
-          console.log("Profile creation response:", createResponse);
+      if (error?.response?.data?.error === "Profile not found") {
+        console.log("Profile not found, creating profile");
+        const response = await profileService.createProfile({
+          name: name || "User",
+        });
+        console.log("creating profile response", response);
 
-          if (createResponse.status === 200) {
-            setProfile(createResponse.data);
-          } else {
-            console.error("Failed to create profile:", createResponse);
-          }
-        } catch (createError) {
-          console.error("Error creating profile:", createError);
+        if (response.status === 200) {
+          setProfile(response.data);
+        } else {
+          console.error("Failed to create profile");
         }
+      } else {
+        console.error("Error fetching TalkJS token:", error);
       }
     }
   };

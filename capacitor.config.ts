@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "io.catnnect.connect",
-  // appId: "com.catnnect.ios",
+  // appId: "io.catnnect.connect",
+  appId: "com.catnnect.ios",
   appName: "Catnnect Connect",
   webDir: "dist",
   server: {
@@ -11,7 +11,7 @@ const config: CapacitorConfig = {
   },
   plugins: {
     PushNotifications: {
-      presentationOptions: ["badge", "sound", "alert"],
+      presentationOptions: ["badge", "sound", "alert", "banner", "list"],
     },
     AdMob: {
       appId: "ca-app-pub-7556755881195797~4201273301",
@@ -25,12 +25,26 @@ const config: CapacitorConfig = {
       redirectURI: "App://oauth",
       scopes: "email name",
     },
-    FirebaseMessaging: {
-      presentationOptions: ["badge", "sound", "alert"],
+    LocalNotifications: {
+      smallIcon: "ic_launcher_foreground",
+      iconColor: "#488AFF",
+      sound: "default",
+    },
+    CapacitorHttp: {
+      enabled: true,
+    },
+    App: {
+      appUrlOpen: {
+        enabled: true,
+      },
+    },
+    StatusBar: {
+      style: "dark",
     },
   },
   ios: {
     scheme: "App",
+    backgroundColor: "#000000",
   },
   android: {
     allowMixedContent: true,
@@ -38,6 +52,7 @@ const config: CapacitorConfig = {
       keystorePath: undefined,
       keystoreAlias: undefined,
     },
+    backgroundColor: "#ffffff",
   },
 };
 

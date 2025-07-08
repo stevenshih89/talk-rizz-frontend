@@ -1,5 +1,6 @@
 import UIKit
 import Capacitor
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -7,7 +8,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // Set notification delegate
+        let center = UNUserNotificationCenter.current()
+        center.delegate = self
+
+        // Optionally set global appearance or status bar style here
+
         return true
     }
 
@@ -27,6 +33,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        
+        // Reset badge count when app becomes active
+        application.applicationIconBadgeNumber = 0
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
@@ -47,10 +56,90 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: deviceToken)
+        // Convert token to string
+        let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
+        let token = tokenParts.joined()
+        print("Push notification device token: \(token)")
+        
+        // Forward to Capacitor
+        NotificationCenter.default.post(
+            name: Notification.Name("capacitorDidRegisterForRemoteNotifications"),
+            object: deviceToken
+        )
     }
-
+    
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
+        // Log error
+        print("Failed to register for remote notifications: \(error.localizedDescription)")
+        
+        // Forward to Capacitor
+        NotificationCenter.default.post(
+            name: Notification.Name("capacitorDidFailToRegisterForRemoteNotifications"),
+            object: error
+        )
+    }
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        // Log notification
+        print("Push notification received: \(userInfo)")
+        
+        // Forward to Capacitor
+        NotificationCenter.default.post(
+            name: Notification.Name("capacitorDidReceiveRemoteNotification"),
+            object: nil,
+            userInfo: ["userInfo": userInfo, "completionHandler": completionHandler]
+        )
+    }
+}
+
+// MARK: - UNUserNotificationCenterDelegate
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        // Show notification when app is in foreground
+        if #available(iOS 14.0, *) {
+            completionHandler([.banner, .sound, .badge, .list])
+        } else {
+            completionHandler([.alert, .sound, .badge])
+        }
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        // Handle notification response
+        let userInfo = response.notification.request.content.userInfo
+        print("Notification tapped: \(userInfo)")
+        
+        // Forward to Capacitor
+        NotificationCenter.default.post(
+            name: Notification.Name("capacitorDidReceiveNotificationResponse"),
+            object: nil,
+            userInfo: ["response": response, "completionHandler": completionHandler]
+        )
+        
+        // Complete
+        completionHandler()
+    }
+}
+
+// MARK: - Notification Names Extension
+extension Notification.Name {
+    static var capacitorDidRegisterForRemoteNotifications: Notification.Name {
+        return Notification.Name("capacitorDidRegisterForRemoteNotifications")
+    }
+    
+    static var capacitorDidFailToRegisterForRemoteNotifications: Notification.Name {
+        return Notification.Name("capacitorDidFailToRegisterForRemoteNotifications")
+    }
+    
+    static var capacitorDidReceiveRemoteNotification: Notification.Name {
+        return Notification.Name("capacitorDidReceiveRemoteNotification")
+    }
+    
+    static var capacitorWillPresentNotification: Notification.Name {
+        return Notification.Name("capacitorWillPresentNotification") 
+    }
+    
+    static var capacitorDidReceiveNotificationResponse: Notification.Name {
+        return Notification.Name("capacitorDidReceiveNotificationResponse")
     }
 }

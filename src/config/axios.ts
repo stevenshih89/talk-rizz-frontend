@@ -4,7 +4,6 @@ import { supabase } from "./supabase";
 // Create an Axios instance with default configuration
 const axiosInstance = axios.create({
   baseURL: "https://rizz-be.racewonder.cam/api",
-  // baseURL: "http://localhost:8087/api",
   headers: {
     "Content-Type": "application/json",
   },

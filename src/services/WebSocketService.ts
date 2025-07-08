@@ -32,6 +32,7 @@ class WebSocketService {
   socket: Socket | null = null;
   private static instance: WebSocketService;
   private currentRoomId: string | null = null;
+  private messageHandlerCount: number = 0;
 
   private constructor() {}
 
@@ -43,6 +44,17 @@ class WebSocketService {
   }
 
   connect(token: string) {
+    // If already connected, don't reconnect
+    if (this.socket?.connected) {
+      console.log("WebSocket already connected, skipping reconnection");
+      return;
+    }
+
+    // Disconnect existing socket if any
+    if (this.socket) {
+      this.disconnect();
+    }
+
     // const BACKEND_URL =
     //   process.env.REACT_APP_BACKEND_URL || "http://localhost:3000";
     const BACKEND_URL = "https://rizz-be.racewonder.cam";
@@ -51,6 +63,9 @@ class WebSocketService {
       auth: {
         token,
       },
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
     this.socket.on("connect", () => {
@@ -68,8 +83,12 @@ class WebSocketService {
 
   disconnect() {
     if (this.socket) {
+      // Remove all listeners
+      this.socket.removeAllListeners();
       this.socket.disconnect();
       this.socket = null;
+      this.messageHandlerCount = 0;
+      console.log("WebSocket disconnected and all listeners removed");
     }
   }
 
@@ -77,6 +96,7 @@ class WebSocketService {
     if (!this.socket) {
       throw new Error("WebSocket not connected");
     }
+    console.log("Sending message:", message.content.substring(0, 20) + "...");
     this.socket.emit("send_message", message);
   }
 
@@ -96,6 +116,8 @@ class WebSocketService {
     if (!this.socket) {
       throw new Error("WebSocket not connected");
     }
+    // Remove existing listeners first
+    this.socket.off("new_room");
     this.socket.on("new_room", callback);
   }
 
@@ -121,22 +143,32 @@ class WebSocketService {
     if (!this.socket) {
       throw new Error("WebSocket not connected");
     }
-    
+
+    // Remove any existing listeners to prevent duplicates
+    this.socket.off("new_message");
+
+    this.messageHandlerCount++;
+    console.log(`Adding message handler #${this.messageHandlerCount}`);
+
+    // Add the new listener
     this.socket.on("new_message", (message) => {
+      console.log(
+        `WebSocketService (handler #${this.messageHandlerCount}) received message:`,
+        message._doc._id
+      );
+
       // Handle notification if message is from a different room than current
       if (message._doc.roomId !== this.currentRoomId) {
         const sender = message.sender?.name || "Someone";
         const title = `New message from ${sender}`;
         const body = message._doc.content;
-        
+
         // Show a notification with the message content
-        PushNotificationService.showNotification(
-          title,
-          body,
-          { roomId: message._doc.roomId }
-        );
+        PushNotificationService.showNotification(title, body, {
+          roomId: message._doc.roomId,
+        });
       }
-      
+
       // Call the original callback
       callback(message);
     });
@@ -146,6 +178,8 @@ class WebSocketService {
     if (!this.socket) {
       throw new Error("WebSocket not connected");
     }
+    // Remove existing listeners first
+    this.socket.off("user_typing");
     this.socket.on("user_typing", callback);
   }
 
@@ -167,6 +201,8 @@ class WebSocketService {
     if (!this.socket) {
       throw new Error("WebSocket not connected");
     }
+    // Remove existing listeners first
+    this.socket.off("message_read");
     this.socket.on("message_read", callback);
   }
 }

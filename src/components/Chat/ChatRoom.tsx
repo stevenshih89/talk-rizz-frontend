@@ -31,37 +31,47 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId }) => {
     () => messages[roomId] || [],
     [messages, roomId]
   );
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const contentRef = useRef<HTMLDivElement>(null);
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
-  // const [roomMessages, setRoomMessages] = useState<ChatMessage[]>([]);
   const history = useHistory();
+  const hasJoinedRoom = useRef(false);
 
+  // Fetch message history when component mounts
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
+        console.log(`Fetching chat history for room: ${roomId}`);
         const response = await axiosInstance.get<ChatMessage[]>(
           `/chat/rooms/${roomId}/messages?page=1&limit=50`
         );
-        setMessages({
+
+        // Check if we already have messages for this room
+        if (messages[roomId] && messages[roomId].length > 0) {
+          console.log(`Room ${roomId} already has messages, not overwriting`);
+          return;
+        }
+
+        // Update messages in context with new data
+        console.log(
+          `Setting ${response.data.length} messages for room ${roomId}`
+        );
+        const updatedMessages = {
           ...messages,
           [roomId]: response.data,
-        });
+        };
+        setMessages(updatedMessages);
       } catch (error) {
-        history.push("/app/chat");
         console.error("Error fetching chat history:", error);
+        history.push("/app/chat");
       }
     };
+
     fetchChatHistory();
-  }, []);
+  }, [roomId, messages, setMessages]);
 
-  // useEffect(() => {
-  //   if (messages[roomId]) {
-  //     setRoomMessages(messages[roomId]);
-  //   }
-  // }, [messages]);
-
+  // Scroll to bottom when messages change
   useEffect(() => {
     if (contentRef.current) {
       contentRef.current.scrollTop = contentRef.current.scrollHeight;
@@ -71,27 +81,41 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId }) => {
     roomMessages.filter((msg) => msg.read === false).length,
   ]);
 
+  // Join room and set up typing events
   useEffect(() => {
-    let timerId: NodeJS.Timeout;
-    wsService.onTyping(({ userId, roomId: typingRoomId }) => {
-      if (roomId === typingRoomId && userId !== user?.id) {
-        console.log("typing...");
-        // Clear any existing timeout
-        if (timerId) {
-          clearTimeout(timerId);
-        }
+    if (!wsService.socket || !session?.access_token) {
+      console.log("No socket connection, reconnecting...");
+      wsService.connect(session?.access_token || "");
+    }
+
+    if (!hasJoinedRoom.current) {
+      console.log(`Joining room ${roomId} from ChatRoom component`);
+      wsService.joinRoom(roomId);
+      hasJoinedRoom.current = true;
+
+      // Mark messages as read when joining
+      wsService.markAsRead(roomId);
+    }
+
+    // Listen for typing events
+    wsService.onTyping((data) => {
+      if (data.userId !== user?.id && data.roomId === roomId) {
         setIsTyping(true);
-        // Set new timeout
-        timerId = setTimeout(() => setIsTyping(false), 3000);
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+          setIsTyping(false);
+        }, 3000);
       }
     });
 
+    // Cleanup function
     return () => {
-      if (timerId) {
-        clearTimeout(timerId);
-      }
+      console.log(`Leaving room ${roomId} from ChatRoom component`);
+      wsService.leaveRoom(roomId);
+      hasJoinedRoom.current = false;
+      clearTimeout(typingTimeoutRef.current);
     };
-  }, [roomId, user?.id]);
+  }, [roomId, user?.id, session?.access_token]);
 
   // Mark messages as read when component mounts
   useEffect(() => {
@@ -99,24 +123,6 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId }) => {
       markMessagesAsRead(roomId);
     }
   }, [roomId, markMessagesAsRead]);
-
-  // Mark messages as read when scrolling to bottom
-  // useEffect(() => {
-  //   const handleScroll = () => {
-  //     if (contentRef.current) {
-  //       const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
-  //       if (scrollHeight - scrollTop <= clientHeight + 100) {
-  //         markMessagesAsRead(roomId);
-  //       }
-  //     }
-  //   };
-
-  //   const contentElement = contentRef.current;
-  //   if (contentElement) {
-  //     contentElement.addEventListener("scroll", handleScroll);
-  //     return () => contentElement.removeEventListener("scroll", handleScroll);
-  //   }
-  // }, [roomId, markMessagesAsRead]);
 
   const handleSend = () => {
     if (message.trim() && user) {
@@ -181,7 +187,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId }) => {
           ) : (
             roomMessages.map((msg, index) => (
               <div
-                key={index}
+                key={msg._id || index}
                 className={`message-wrapper ${
                   msg.senderId === user?.id ? "sent" : "received"
                 }`}

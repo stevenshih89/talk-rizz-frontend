@@ -8,14 +8,19 @@ import { useHistory } from "react-router-dom";
 export const DeepLinkHandler = () => {
   const { handleAuthCallback } = useAuth();
   const history = useHistory();
-  
+
   const handleDeepLink = async (event: URLOpenListenerEvent) => {
     const { url } = event;
     console.log("Deep link received:", url);
-    
-    if (url.includes("io.catnnect.connect://oauth")) {
+
+    // Handle both app scheme URLs and Supabase callback URLs
+    if (
+      url.includes("io.catnnect.connect://oauth") ||
+      url.includes("com.catnnect.ios://oauth") ||
+      url.includes("sqttehzyiacxmmiqsovw.supabase.co/auth/v1/callback")
+    ) {
       console.log("Processing OAuth callback...");
-      
+
       try {
         // Parse the URL to extract parameters
         const urlObj = new URL(url);
@@ -25,7 +30,7 @@ export const DeepLinkHandler = () => {
         const provider = urlObj.searchParams.get("provider") || "unknown";
 
         console.log(`OAuth callback for provider: ${provider}`);
-        
+
         // Handle OAuth errors
         if (error) {
           console.error("OAuth error:", error, errorDescription);
@@ -40,13 +45,16 @@ export const DeepLinkHandler = () => {
         }
 
         console.log("Exchanging code for session...");
-        
+
         // Exchange the authorization code for a session
-        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        const { data, error: exchangeError } =
+          await supabase.auth.exchangeCodeForSession(code);
 
         if (exchangeError) {
           console.error("Code exchange error:", exchangeError);
-          history.replace("/auth/error?error=" + encodeURIComponent(exchangeError.message));
+          history.replace(
+            "/auth/error?error=" + encodeURIComponent(exchangeError.message)
+          );
           return;
         }
 
@@ -58,18 +66,20 @@ export const DeepLinkHandler = () => {
 
         console.log("Session created successfully:", {
           user: data.session.user.email,
-          provider: data.session.user.app_metadata?.provider
+          provider: data.session.user.app_metadata?.provider,
         });
 
         // Handle the auth callback to set up user profile
         await handleAuthCallback();
-        
+
         // Navigate to the main app
         history.replace("/app/profile");
-        
       } catch (err) {
         console.error("Error processing OAuth callback:", err);
-        history.replace("/auth/error?error=" + encodeURIComponent("callback_processing_failed"));
+        history.replace(
+          "/auth/error?error=" +
+            encodeURIComponent("callback_processing_failed")
+        );
       }
     }
   };
@@ -77,14 +87,14 @@ export const DeepLinkHandler = () => {
   useEffect(() => {
     // Variable to store the listener handle once resolved
     let listenerCleanup: (() => void) | undefined;
-    
+
     // Add the app URL open listener
-    App.addListener("appUrlOpen", handleDeepLink).then(listener => {
+    App.addListener("appUrlOpen", handleDeepLink).then((listener) => {
       listenerCleanup = () => listener.remove();
     });
 
     // Check if we were opened with a deep link
-    App.getLaunchUrl().then(result => {
+    App.getLaunchUrl().then((result) => {
       if (result && result.url) {
         console.log("App was launched with URL:", result.url);
         handleDeepLink({ url: result.url });
