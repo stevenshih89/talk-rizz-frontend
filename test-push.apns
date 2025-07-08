@@ -1,0 +1,15 @@
+{
+  "aps": {
+    "alert": {
+      "title": "Test Notification",
+      "body": "This is a test push notification"
+    },
+    "badge": 1,
+    "sound": "default",
+    "content-available": 1
+  },
+  "data": {
+    "testKey": "testValue",
+    "messageId": "test-123456"
+  }
+} 
