@@ -48,7 +48,7 @@ const ChatList: React.FC<{
                 <img
                   src={
                     room.other.avatar ||
-                    "https://ionicframework.com/docs/img/demos/avatar.svg"
+                    "https://img.icons8.com/?size=100&id=tZuAOUGm9AuS&format=png&color=000000"
                   }
                   alt="avatar"
                 />

@@ -22,6 +22,8 @@ PODS:
     - Capacitor
   - CapacitorKeyboard (6.0.1):
     - Capacitor
+  - CapacitorLocalNotifications (6.1.2):
+    - Capacitor
   - CapacitorPushNotifications (6.0.2):
     - Capacitor
   - CapacitorScreenReader (6.0.2):
@@ -50,6 +52,7 @@ DEPENDENCIES:
   - "CapacitorDevice (from `../../node_modules/@capacitor/device`)"
   - "CapacitorHaptics (from `../../node_modules/@capacitor/haptics`)"
   - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
+  - "CapacitorLocalNotifications (from `../../node_modules/@capacitor/local-notifications`)"
   - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
   - "CapacitorScreenReader (from `../../node_modules/@capacitor/screen-reader`)"
   - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
@@ -85,6 +88,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/haptics"
   CapacitorKeyboard:
     :path: "../../node_modules/@capacitor/keyboard"
+  CapacitorLocalNotifications:
+    :path: "../../node_modules/@capacitor/local-notifications"
   CapacitorPushNotifications:
     :path: "../../node_modules/@capacitor/push-notifications"
   CapacitorScreenReader:
@@ -110,6 +115,7 @@ SPEC CHECKSUMS:
   CapacitorDevice: da1884f895e17992648b27f6c8ee2be72cd0ce2e
   CapacitorHaptics: 05d33e20e394b1977dfd2a00a2621e04098164c1
   CapacitorKeyboard: f38d730356be5569d72eb87ad9c8166947728c36
+  CapacitorLocalNotifications: 65d718c32cbcb753697627bea76dd4336ef85dc2
   CapacitorPushNotifications: 88f40c5f06dfe54f2c0619173e11ecbff8661a2f
   CapacitorScreenReader: a603caab8d98962fd0f1669379b937426ba8b65d
   CapacitorShare: 5d49f1b220e991372b4d5d34be9a6080a042bae4
@@ -119,6 +125,6 @@ SPEC CHECKSUMS:
   Google-Mobile-Ads-SDK: 301a16c461c331ba34ff4dab40a22ab7c147af61
   GoogleUserMessagingPlatform: a8b56893477f67212fbc8411c139e61d463349f5
 
-PODFILE CHECKSUM: 87dd6da0b445955a8a8f7461b47ae2d0a13b86aa
+PODFILE CHECKSUM: ef54abd8ff8763501f4c1f4ad9a67a1986318dcc
 
 COCOAPODS: 1.16.2

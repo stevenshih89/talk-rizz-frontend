@@ -27,28 +27,25 @@ const config: CapacitorConfig = {
     },
     FirebaseMessaging: {
       presentationOptions: ["badge", "sound", "alert"],
-      icon: "notification_icon",
-      iconColor: "#488AFF",
-      sound: "default",
-      platform: "android"
+      platform: "android",
     },
     LocalNotifications: {
       smallIcon: "ic_launcher_foreground",
       iconColor: "#488AFF",
-      sound: "default"
+      sound: "default",
     },
     CapacitorHttp: {
-      enabled: true
+      enabled: true,
     },
     App: {
       appUrlOpen: {
-        enabled: true
-      }
-    }
+        enabled: true,
+      },
+    },
   },
   ios: {
     scheme: "App",
-    contentInset: "always"
+    contentInset: "always",
   },
   android: {
     allowMixedContent: true,
@@ -56,7 +53,7 @@ const config: CapacitorConfig = {
       keystorePath: undefined,
       keystoreAlias: undefined,
     },
-    backgroundColor: "#ffffff"
+    backgroundColor: "#ffffff",
   },
 };
 

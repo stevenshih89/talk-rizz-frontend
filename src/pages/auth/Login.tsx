@@ -31,6 +31,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import SocialAuth from "../../components/SocialAuth";
 import { AuthService } from "../../services/authService";
 import "./Login.css";
+import { Capacitor } from "@capacitor/core";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -65,10 +66,12 @@ const Login: React.FC = () => {
     }
   };
 
+  const toolbarHeight = Capacitor.getPlatform() === "ios" ? "80px" : "60px";
+
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar style={{ height: "60px", paddingTop: "5px" }}>
+        <IonToolbar style={{ height: toolbarHeight, paddingTop: "15px" }}>
           <IonTitle>Login</IonTitle>
         </IonToolbar>
       </IonHeader>

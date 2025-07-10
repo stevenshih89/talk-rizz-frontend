@@ -1,4 +1,5 @@
 import React from "react";
+import { Capacitor } from "@capacitor/core";
 import {
   IonTabs,
   IonTabBar,
@@ -86,7 +87,7 @@ const Tabs: React.FC = () => {
       label: "Setting",
       icon: settings,
       outlineIcon: settingsOutline,
-    }
+    },
   ];
 
   const shouldHideTabBar =
@@ -101,6 +102,10 @@ const Tabs: React.FC = () => {
     location.pathname.startsWith("/app/chat/") ||
     location.pathname.startsWith("/app/connect/") ||
     location.pathname.startsWith("/app/chatbot/");
+
+  // Platform-specific margin for tab bar
+  const tabBarMarginBottom =
+    Capacitor.getPlatform() === "ios" ? "mb-[100px]" : "";
 
   const renderTabButton = ({
     tab,
@@ -151,7 +156,7 @@ const Tabs: React.FC = () => {
       </IonRouterOutlet>
       <IonTabBar
         slot="bottom"
-        className={`bg-[rgba(0,0,0,0.16)] h-20 w-full ${
+        className={`bg-[rgba(0,0,0,0.16)] h-20 w-full ${tabBarMarginBottom} ${
           shouldHideTabBar && "hidden"
         }`}
       >

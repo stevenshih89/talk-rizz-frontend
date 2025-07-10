@@ -1,6 +1,7 @@
 import { IonPage, IonContent, IonImg } from "@ionic/react";
 import { useState, useEffect } from "react";
 import { useIonRouter } from "@ionic/react";
+import { Capacitor } from "@capacitor/core";
 
 interface Message {
   text: string;
@@ -15,6 +16,10 @@ const OnboardingChat: React.FC = () => {
     {}
   );
   const [showStartBtn, setShowStartBtn] = useState(false);
+
+  // Platform-specific margin for input container
+  const inputMarginBottom =
+    Capacitor.getPlatform() === "ios" ? "mb-[135px]" : "";
 
   const questions = [
     "Meow, I am your Meowtchmaker and I will match you with the right people based on who you are looking for.",
@@ -69,8 +74,8 @@ const OnboardingChat: React.FC = () => {
                   message.sender === "bot"
                     ? "bg-[#e8e8e8] --ion-text-primary"
                     : "bg-[#007aff] text-white"
-                    // ? "bg-[#FFFFFF15] text-[var(--ion-text-primary)]"
-                    // : "bg-[var(--ion-color-primary)] text-black"
+                  // ? "bg-[#FFFFFF15] text-[var(--ion-text-primary)]"
+                  // : "bg-[var(--ion-color-primary)] text-black"
                 }`}
               >
                 {message.text}
@@ -89,8 +94,8 @@ const OnboardingChat: React.FC = () => {
           )}
         </div>
 
-        <div className="p-4 border-t border-[#FFFFFF30]">
-          <input  
+        <div className={`p-4 border-t border-[#FFFFFF30] ${inputMarginBottom}`}>
+          <input
             type="text"
             placeholder="Type your response..."
             className="w-full p-3 rounded-lg bg-[#e6e6e8] text-black outline-none"

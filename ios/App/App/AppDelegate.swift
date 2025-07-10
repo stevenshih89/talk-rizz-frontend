@@ -1,6 +1,5 @@
 import UIKit
 import Capacitor
-import FirebaseCore
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -9,36 +8,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        
-        // Configure Firebase directly here instead of using a separate class
-        if let filePath = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") {
-            print("Found GoogleService-Info.plist at \(filePath)")
-            if let options = FirebaseOptions(contentsOfFile: filePath) {
-                FirebaseApp.configure(options: options)
-                print("Firebase configured successfully with options from plist file")
-            } else {
-                print("Error: Failed to load Firebase options from file")
-                FirebaseApp.configure() // Fallback to default
-            }
-        } else {
-            print("ERROR: GoogleService-Info.plist not found in bundle!")
-            
-            // Try to find it in the main directory
-            let alternativePath = Bundle.main.bundlePath + "/GoogleService-Info.plist"
-            if FileManager.default.fileExists(atPath: alternativePath) {
-                print("Found GoogleService-Info.plist at alternative location: \(alternativePath)")
-                if let options = FirebaseOptions(contentsOfFile: alternativePath) {
-                    FirebaseApp.configure(options: options)
-                    print("Firebase configured with options from alternative path")
-                } else {
-                    FirebaseApp.configure() // Fallback to default
-                }
-            } else {
-                print("GoogleService-Info.plist not found in any location, using default configuration")
-                FirebaseApp.configure() // Fallback to default configuration
-            }
-        }
-        
         return true
     }
 
@@ -77,23 +46,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
     }
 
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: deviceToken)
-    }
-
-    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
-    }
-
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesBegan(touches, with: event)
-
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let statusBarFrame = windowScene.statusBarManager?.statusBarFrame,
-              let touchPoint = event?.allTouches?.first?.location(in: self.window) else { return }
-
-        if statusBarFrame.contains(touchPoint) {
-            NotificationCenter.default.post(name: .capacitorStatusBarTapped, object: nil)
-        }
-    }
 }

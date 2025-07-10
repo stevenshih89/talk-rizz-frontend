@@ -19,6 +19,7 @@ import { wsService, ChatMessage } from "../../services/WebSocketService";
 import axiosInstance from "../../config/axios";
 import { useHistory } from "react-router-dom";
 import "./ChatRoom.css";
+import { Capacitor } from "@capacitor/core";
 
 interface ChatRoomProps {
   roomId: string;
@@ -146,6 +147,9 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId }) => {
     }
   };
 
+  const footerMarginBottom =
+    Capacitor.getPlatform() === "ios" ? "135px" : "0px";
+
   return (
     <div
       className="chat-container"
@@ -253,7 +257,10 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId }) => {
           )}
         </div>
       </IonContent>
-      <IonFooter className="chat-footer" style={{ backgroundColor: "#e6e6e8"}}>
+      <IonFooter
+        className="chat-footer"
+        style={{ backgroundColor: "#e6e6e8", marginBottom: footerMarginBottom }}
+      >
         <div
           style={{ display: "flex", alignItems: "center", padding: "8px 16px" }}
         >

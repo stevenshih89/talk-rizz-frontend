@@ -15,6 +15,7 @@ import {
   IonCardTitle,
 } from "@ionic/react";
 import { useParams, useHistory } from "react-router";
+import { Capacitor } from "@capacitor/core";
 
 interface ReportParams {
   roomId: string;
@@ -37,10 +38,12 @@ const Report: React.FC = () => {
     history.push(`/app/chat/${roomId}/report/${index}`);
   };
 
+  const toolbarHeight = Capacitor.getPlatform() === "ios" ? "80px" : "60px";
+
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar style={{ height: "60px", paddingTop: "0px" }}>
+        <IonToolbar style={{ height: toolbarHeight, paddingTop: "0px" }}>
           <IonButtons slot="start">
             <IonBackButton defaultHref={`/app/chat/${roomId}`} />
           </IonButtons>

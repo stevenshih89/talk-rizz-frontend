@@ -27,6 +27,7 @@ import { useHistory } from "react-router-dom";
 import { useChat } from "../../contexts/ChatContext";
 import { profileService } from "../../services/profileService";
 import { connectService } from "../../services/connectService";
+import { Capacitor } from "@capacitor/core";
 
 const Home: React.FC = () => {
   const { isLoading, user, profile, connect } = useAuth();
@@ -105,10 +106,12 @@ const Home: React.FC = () => {
     }
   };
 
+  const toolbarHeight = Capacitor.getPlatform() === "ios" ? "80px" : "60px";
+
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar style={{ height: "60px", paddingTop: "0px" }}>
+        <IonToolbar style={{ height: toolbarHeight, paddingTop: "0px" }}>
           <IonTitle>Home</IonTitle>
         </IonToolbar>
       </IonHeader>

@@ -26,6 +26,7 @@ import {
 import "./index.css";
 import { UserProfile } from "../../types/profile";
 import { useAuth } from "../../contexts/AuthContext";
+import { Capacitor } from "@capacitor/core";
 
 const Settings: React.FC = () => {
   const { profile: authProfile, setProfile: setAuthProfile } = useAuth();
@@ -38,12 +39,14 @@ const Settings: React.FC = () => {
     "He is a software engineer with a passion for building scalable and efficient systems.",
     "They are software engineer with a passion for building scalable and efficient systems.",
     "We are software engineer with a passion for building scalable and efficient systems.",
-  ]
+  ];
+
+  const toolbarHeight = Capacitor.getPlatform() === "ios" ? "80px" : "60px";
 
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar style={{ height: "60px", paddingTop: "5px" }}>
+        <IonToolbar style={{ height: toolbarHeight, paddingTop: "15px" }}>
           <IonTitle>Settings</IonTitle>
         </IonToolbar>
       </IonHeader>
@@ -64,12 +67,12 @@ const Settings: React.FC = () => {
           <IonItem>
             <IonLabel>Language</IonLabel>
             {/* <IonSelect value={language} onIonChange={handleLanguageChange}> */}
-            <IonSelect 
-              value={"en"} 
-              onIonChange={() => {}} 
-              interface="popover" 
+            <IonSelect
+              value={"en"}
+              onIonChange={() => {}}
+              interface="popover"
               interfaceOptions={{
-                cssClass: 'select-interface-option custom-popover'
+                cssClass: "select-interface-option custom-popover",
               }}
             >
               <IonSelectOption value="en">English</IonSelectOption>
@@ -87,7 +90,9 @@ const Settings: React.FC = () => {
           <IonItem lines="none">
             <IonLabel color="danger">Delete Account</IonLabel>
             {/* <IonButton color="danger" onClick={confirmDelete}>Delete</IonButton> */}
-            <IonButton color="danger" onClick={() => {}}>Delete</IonButton>
+            <IonButton color="danger" onClick={() => {}}>
+              Delete
+            </IonButton>
           </IonItem>
 
           {/* <IonItem button onClick={showPrivacyGuidelines}> */}
@@ -97,8 +102,6 @@ const Settings: React.FC = () => {
         </IonList>
       </IonContent>
     </IonPage>
-
-
   );
 };
 

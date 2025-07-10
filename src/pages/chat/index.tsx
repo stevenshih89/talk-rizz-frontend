@@ -21,6 +21,7 @@ import CategoryMenu from "../../components/Chat/CategoryMenu";
 import { useChat } from "../../contexts/ChatContext";
 import { useHistory } from "react-router-dom";
 import "./Chat.css";
+import { Capacitor } from "@capacitor/core";
 
 const Chat: React.FC = () => {
   const { user, isLoading } = useAuth();
@@ -85,6 +86,8 @@ const Chat: React.FC = () => {
     return <CategoryMenu onSelectSubcategory={handleCategorySelect} />;
   };
 
+  const toolbarHeight = Capacitor.getPlatform() === "ios" ? "80px" : "60px";
+
   return (
     <IonPage>
       {isLoading || chatLoading ? (
@@ -101,7 +104,7 @@ const Chat: React.FC = () => {
       ) : (
         <>
           <IonHeader>
-            <IonToolbar style={{ height: "60px", paddingTop: "5px" }}>
+            <IonToolbar style={{ height: toolbarHeight, paddingTop: "15px" }}>
               <div className="relative chat-header">
                 {selectedCategory && (
                   <IonButtons

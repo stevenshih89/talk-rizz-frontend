@@ -20,6 +20,7 @@ import ChatbotRoom from "../../components/Chat/ChatbotRoom";
 import Spinner from "../../components/Spinner";
 import { arrowBack } from "ionicons/icons";
 import "./Chat.css";
+import { Capacitor } from "@capacitor/core";
 
 interface ChatbotParams {
   mode: string;
@@ -33,6 +34,8 @@ const Chatbot: React.FC = () => {
   if (!user) {
     return <Spinner />;
   }
+
+  const toolbarHeight = Capacitor.getPlatform() === "ios" ? "80px" : "60px";
 
   return (
     <IonPage>
@@ -50,7 +53,7 @@ const Chatbot: React.FC = () => {
       ) : (
         <>
           <IonHeader>
-            <IonToolbar style={{ height: "60px", paddingTop: "0px" }}>
+            <IonToolbar style={{ height: toolbarHeight, paddingTop: "0px" }}>
               <div className="relative chat-header">
                 <IonButtons
                   slot="start"

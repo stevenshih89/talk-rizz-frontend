@@ -3,7 +3,7 @@
   --ion-background-color: #f3f4f4;
   --ion-background-color-rgb: 18, 18, 18;
   --ion-text-color: #111827;
-  --ion-text-color-secondary: #6B7280;
+  --ion-text-color-secondary: #6b7280;
   --ion-text-color-rgb: 255, 255, 255;
   --ion-color-step-50: #1e1e1e;
   --ion-color-step-100: #2a2a2a;
@@ -24,7 +24,7 @@
   --ion-color-step-850: #dbdbdb;
   --ion-color-step-900: #e7e7e7;
   --ion-color-step-950: #f3f3f3;
-  --ion-color-step-1000: #F9FAFB;
+  --ion-color-step-1000: #f9fafb;
 }
 
 /* Header styles */

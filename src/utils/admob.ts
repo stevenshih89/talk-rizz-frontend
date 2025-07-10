@@ -89,11 +89,11 @@ export class AdMobService {
   async hideBannerAd(): Promise<void> {
     try {
       if (this.bannerVisible) {
-      await AdMob.hideBanner();
-      this.bannerVisible = false;
-      this.notifyVisibilityChange(false);
-      console.log("Banner ad hidden successfully");
-      console.log("Google Ad Displayed:", false);
+        await AdMob.hideBanner();
+        this.bannerVisible = false;
+        this.notifyVisibilityChange(false);
+        console.log("Banner ad hidden successfully");
+        console.log("Google Ad Displayed:", false);
       } else {
         // Banner is already hidden
         console.log("No banner ad to hide");

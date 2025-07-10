@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import axiosInstance from "../../config/axios";
 import { useHistory } from "react-router-dom";
 import "./ChatbotRoom.css";
+import { Capacitor } from "@capacitor/core";
 
 interface ChatbotRoomProps {
   mode: string;
@@ -104,6 +105,8 @@ const ChatbotRoom: React.FC<ChatbotRoomProps> = ({ mode }) => {
       handleSend();
     }
   };
+
+  const footerMarginBottom = Capacitor.getPlatform() === "ios" ? "135px" : "0";
 
   return (
     <div
@@ -197,7 +200,13 @@ const ChatbotRoom: React.FC<ChatbotRoomProps> = ({ mode }) => {
           )}
         </div>
       </IonContent>
-      <IonFooter className="chat-footer" style={{ backgroundColor: "#202C33" }}>
+      <IonFooter
+        className="chat-footer"
+        style={{
+          backgroundColor: "#202C33",
+          marginBottom: footerMarginBottom,
+        }}
+      >
         <div
           style={{ display: "flex", alignItems: "center", padding: "8px 16px" }}
         >
